@@ -1,0 +1,4 @@
+*.json
+*.pyc
+*.swp
+tweet_inputs/tweets.txt
