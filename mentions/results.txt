@@ -1,0 +1,42 @@
+Mentions
+
+query:
+
+> db['mention-collection'].find({}, {"screen_name": 1, "count": 1}).sort({ "count": -1}).limit(30)
+
+"count" : 7858, "screen_name" : "kenyapower" }
+https://twitter.com/KenyaPower - Care: Kenya Power Social Media Support Team. Here to help with all your power related queries,24/7.
+
+@KenyaPower could you clarify for me, how 200 bob gets you 19 units, 15, 12, 9 and 5 units in the same month? What normally happens?
+@KenyaPower.  What is my current bill.  A/C 2372785
+@KenyaPower hey how long till power is back in drive inn environs thikaroad??
+@KenyaPower how long till the powe is back in drive inn environs thikaroad??
+@KenyaPower when will power be restored in South C?
+@KenyaPower outage in South C. Is anything being done about it?
+@KenyaPower work on your systems man.....been trying to buy units since noon and your systems aint working....niko na exams kesho maze......
+@kenyapower is there an issue with your tokens system?Bought tokens in the morning via mpesa and haven't received them.
+"@odungareh: @KenyaPower bought tokens for account number 04217135138 na si they are taking forever." Io acc ni ya China
+@KenyaPower Please ,we don't have power in dandora phase 2 a/c 14104374831,plot no 2535.Thank you
+
+"count" : 3830, "screen_name" : "homeboyzradio" }
+
+@HomeboyzRadio The producer of the riddim #np was @ArifSupa Cooper,he came with @Alainesinga I witnessed #Sepetuka #TBT
+
+
+
+"count" : 3818, "screen_name" : "ktnkenya" }
+"count" : 3762, "screen_name" : "ma3route" }
+"count" : 3710, "screen_name" : "ntvkenya" }
+ "count" : 3682, "screen_name" : "unjobs" }
+"count" : 3532, "screen_name" : "ukenyatta" }
+ "count" : 3370, "screen_name" : "safaricomltd" }
+"count" : 2942, "screen_name" : "reinhard_asamo" }
+"count" : 2882, "screen_name" : "citizentvkenya" }
+"count" : 2780, "screen_name" : "jalangomwenyewe" }
+"count" : 2770, "screen_name" : "robertalai" }
+ "count" : 2566, "screen_name" : "mbusii" }
+"count" : 2528, "screen_name" : "liondeh" }
+ "count" : 2392, "screen_name" : "ghettoradio895" }
+
+
+12 year old girls out here thinking they "bad bitches". Child, you don't even have tits yet. STFU and sit the fuck down.

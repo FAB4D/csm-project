@@ -1,0 +1,13 @@
+import json
+import ast
+
+f = open('csm-tweets-nairobi.json', 'rb')
+
+tweets = f.readlines()
+f.close()
+
+fw = open('tweets.txt', 'wb')
+for tweet in tweets:
+	raw_tweet = ast.literal_eval(tweet.rstrip("\n"))
+	fw.write(raw_tweet['text']+"\n")
+fw.close()
