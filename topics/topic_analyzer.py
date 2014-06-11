@@ -177,7 +177,7 @@ class TopicAnalyzer:
         for record in res:
             if record['topic_words']:
                 topic_words = record['topic_words'][0].split()
-                date =record['created_at']
+                date =EAT.localize(record['created_at'])
                 h = date.hour
                 if h < 2 or h >= 22:
                     daytime_dict['night'] = self.countTopics(topic_words, daytime_dict['night'])
