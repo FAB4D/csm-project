@@ -6,11 +6,15 @@ from sklearn.multiclass import OneVsRestClassifier
 from mongo_retriever import mongoDB
 from sklearn.externals import joblib
 
+from datetime import date, datetime
+
 import svm
 from svmutil import *
 
 import sys
 import csv 
+
+from itertools import *
 
 import numpy as np
 
@@ -169,10 +173,53 @@ class Classifier():
         print self.clf.predict(self.xtest)
         print self.ytest
 
-        print self.clf.score(self.xtest, self.ytest)
-
     def classify(self):
-        return 
+        weather_records = self.db.fetch_sorted('weather-collection', {}, 'created_at', 'ASC')
+
+        date_dict = {}
+        for record in weather_records:
+            curr_date = date(int(record['date']['year']), int(record['date']['month']),int(record['date']['day']))
+            print curr_date
+            begin_date = datetime(curr_date.year,curr_date.month,curr_date.day, 00, 00, 00)
+            end_date = datetime(curr_date.year,curr_date.month,curr_date.day, 23, 59, 59)
+            records = self.db.fetch('feature-collection', { 'created_at' : { "$gte": begin_date, "$lte": end_date}}, False)
+
+            if curr_date not in date_dict:
+                date_dict[curr_date] = {}
+                date_dict[curr_date]['weather'] = record['data']
+                date_dict[curr_date]['features'] = []
+                for record in records:
+                    date_dict[curr_date]['features'].append(record['sentiment_words'])
+            else:
+                print 'weather date already in date_dict? Dates should be unique!'
+
+        series = []
+        print 'Starting classification of tweet sentiments by date..'
+        print 
+        for k,v in date_dict.iteritems():
+            date_features = []
+            for sentiment_words in v['features']:
+                feature, non_label = self.extract_feature(sentiment_words)
+                date_features.append(feature)
+            date_features = np.array(date_features)
+            labels = self.clf.predict(date_features)
+
+            sentiment = 0
+            for l in labels:
+                if label == '0':
+                    sentiment += 1
+                elif label == '1':
+                    sentiment -= 1
+
+            series.append((k, sentiment, v['weather']['meantemp'],v['weather']['meantemp'], v['weather']['mintemp'], v['weather']['maxtemp'], v['weather']['precipi'], v['weather']['humidity']))
+            print 'finished computing sentiment for day ', k
+            print 
+
+        print series
+        serieswriter = csv.writer(open('data/series.csv', 'wb'), delimiter=',', quotechar='"')
+        for row in series:
+            serieswriter.writerow(row)
+        print 'Sentiment + Weather series successfully written to file series.csv!'
 
 def main(args):
     # labelled_tweets.csv
@@ -186,6 +233,7 @@ def main(args):
     #c.select_model(params, 10)
     c.train(params, 10)
     c.test()
+    c.classify()
 
     #c.train_libsvm()
     #c.test_libsvm()
