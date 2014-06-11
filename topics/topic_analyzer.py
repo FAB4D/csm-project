@@ -1,8 +1,9 @@
 from mongo_retriever import mongoDB
 import operator
 import sys
-from datetime import datetime, date
+from datetime import date
 from dateutil.relativedelta import relativedelta
+import dateutil.parser
 
 from pytz import *
 EAT = timezone('Africa/Nairobi')
@@ -65,8 +66,8 @@ class TopicAnalyzer:
             month_dict = {}
             curr_date = d1 + relativedelta(months=+i)
             #print curr_date
-            begin_date = datetime(curr_date.year,curr_date.month,curr_date.day, 00, 00, 00) + relativedelta(day=1)
-            end_date = datetime(curr_date.year,curr_date.month,curr_date.day, 23, 59, 59) + relativedelta(day=1, months=+1, days=-1)
+            begin_date = datetime.datetime(curr_date.year,curr_date.month,curr_date.day, 00, 00, 00) + relativedelta(day=1)
+            end_date = datetime.datetime(curr_date.year,curr_date.month,curr_date.day, 23, 59, 59) + relativedelta(day=1, months=+1, days=-1)
             #print begin_date  
             #print end_date
             res = self.mongo.fetch('feature-collection-mod', { 'created_at' : { "$gte": begin_date, "$lte": end_date}}, False)
@@ -176,20 +177,21 @@ class TopicAnalyzer:
         for record in res:
             if record['topic_words']:
                 topic_words = record['topic_words'][0].split()
-                date = record['created_at']
+                date =record['created_at']
                 h = date.hour
-                if h < 4 or h >= 23:
+                if h < 2 or h >= 22:
                     daytime_dict['night'] = self.countTopics(topic_words, daytime_dict['night'])
-                elif h >= 4 and h < 11:
+                elif h >= 2 and h < 11:
                     daytime_dict['morning'] = self.countTopics(topic_words, daytime_dict['morning'])
                 elif h >= 11 and h < 14:
                     daytime_dict['noon'] = self.countTopics(topic_words, daytime_dict['noon'])
                 elif h >= 14 and h < 18:
                     daytime_dict['afternoon'] = self.countTopics(topic_words, daytime_dict['afternoon'])
-                elif h >= 18 and h < 23:
+                elif h >= 18 and h < 22:
                     daytime_dict['evening'] = self.countTopics(topic_words, daytime_dict['evening'])
 
         for k,v in daytime_dict.iteritems():
+            print k
             writer = csv.writer(open('topics_by_%s.csv'%k, 'wb'), delimiter=',', quotechar='"')
             writer.writerow( ('Topics', '#Occurrences') )
             sorted_topics = sorted(v.iteritems(), key=operator.itemgetter(1), reverse = True)

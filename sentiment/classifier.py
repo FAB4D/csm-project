@@ -71,6 +71,19 @@ class Classifier():
 
         return (feature_vec, label)
 
+    def extract_feature(self, words):
+        if words:
+            feature_vec = []
+            for word in self.features:
+                if word[0] in words:
+                    feature_vec.append(1)
+                    continue
+                feature_vec.append(0)
+        else:
+            feature_vec = np.zeros(len(self.features)).tolist()
+
+        return feature_vec
+
     def preprocess_data(self, source, load):
         if not load:
             labelled_tweet_set= csv.reader(open('data/%s'%source, 'rb'), delimiter=',', quotechar='"')
@@ -107,6 +120,8 @@ class Classifier():
             np.save('data', self.data)
             np.save('labels', self.labels)
         else:
+            self.create_features([], 'read')
+
             self.data = np.load('data.npy')
             self.labels = np.load('labels.npy')
             print self.data.shape
@@ -179,9 +194,11 @@ class Classifier():
         date_dict = {}
         for record in weather_records:
             curr_date = date(int(record['date']['year']), int(record['date']['month']),int(record['date']['day']))
-            print curr_date
             begin_date = datetime(curr_date.year,curr_date.month,curr_date.day, 00, 00, 00)
             end_date = datetime(curr_date.year,curr_date.month,curr_date.day, 23, 59, 59)
+            print begin_date
+            print end_date
+            print
             records = self.db.fetch('feature-collection', { 'created_at' : { "$gte": begin_date, "$lte": end_date}}, False)
 
             if curr_date not in date_dict:
@@ -199,20 +216,51 @@ class Classifier():
         for k,v in date_dict.iteritems():
             date_features = []
             for sentiment_words in v['features']:
-                feature, non_label = self.extract_feature(sentiment_words)
+                feature = self.extract_feature(sentiment_words)
                 date_features.append(feature)
-            date_features = np.array(date_features)
-            labels = self.clf.predict(date_features)
+            if len(date_features) > 0:
+                date_features = np.array(date_features)
+                print k
+                print date_features.shape
+                labels = self.clf.predict(date_features)
 
             sentiment = 0
-            for l in labels:
-                if label == '0':
+            for label in labels:
+                if label == 0:
                     sentiment += 1
-                elif label == '1':
+                elif label == 1:
                     sentiment -= 1
 
-            series.append((k, sentiment, v['weather']['meantemp'],v['weather']['meantemp'], v['weather']['mintemp'], v['weather']['maxtemp'], v['weather']['precipi'], v['weather']['humidity']))
-            print 'finished computing sentiment for day ', k
+            temp = []
+            for t in v['weather']['temp']:
+                if isinstance(t, (int, float)):
+                    temp.append(t)
+
+            if 'meantemp' in v['weather']:
+                meantemp = v['weather']['meantemp']
+            else:
+                meantemp = sum(temp)/float(len(temp))
+
+            mintemp = 'NA'
+            if 'mintemp' in v['weather']:
+                mintemp = v['weather']['mintemp']
+
+            maxtemp = 'NA'
+            if 'maxtemp' in v['weather']:
+                maxtemp = v['weather']['maxtemp']
+
+            precipi = 'NA'
+            if 'precipi' in v['weather']:
+                precipi = v['weather']['precipi']
+
+            humidity = 'NA'
+            if 'humidity' in v['weather']:
+                humidity = v['weather']['humidity']
+
+            num_tweets = len(labels)
+            sentiment = sentiment/float(num_tweets)
+            series.append((k, num_tweets, sentiment, meantemp, mintemp, maxtemp, precipi, humidity))
+            print 'finished computing sentiment for day %s: %f'%(k, sentiment)
             print 
 
         print series
