@@ -161,8 +161,7 @@ class Classifier():
         except:
             print "building new model"
             self.select_model(params, folds) 
-            self.clf = self.clf.best_estimator_ 
-            joblib.dump(self.c,"classifier.pkl")
+            joblib.dump(self.clf,"classifier.pkl")
 
         self.clf.fit(self.xtrain, self.ytrain)
 
